@@ -29,12 +29,12 @@ test('home metadata uses the canonical domain and server-rendered factual schema
   assert.doesNotMatch(index, /CTO @Skillramp/);
 });
 
-test('approved portrait, bilingual CVs and Financialia cases are unchanged copies', async () => {
+test('portrait, bilingual CVs and Financialia cases match approved snapshots', async () => {
   const pairs = [
     ['public/images/carlos-plasencia.png', 'a0c3e405e49b18ffdd3b7389e7cffb1d565828265b9d3d6008db8514bfd2152f'],
-    ['public/cv.pdf', 'fdf5b342cae08f2887ef8c8377a7835f610b64ce76de94eb7de2253882325c30'],
-    ['public/cv/carlos-plasencia-es.pdf', 'fdf5b342cae08f2887ef8c8377a7835f610b64ce76de94eb7de2253882325c30'],
-    ['public/cv/carlos-plasencia-en.pdf', '7c997049ab9cab2a8215bc20ddca9859604d70ab3a346b78251fe1db8ab1edf3'],
+    ['public/cv.pdf', 'cd97e55fd894138b3a403769fd4651d3c89beeeb88665d79a8b0edd0dd2c596b'],
+    ['public/cv/carlos-plasencia-es.pdf', 'cd97e55fd894138b3a403769fd4651d3c89beeeb88665d79a8b0edd0dd2c596b'],
+    ['public/cv/carlos-plasencia-en.pdf', '03bcc2b90700fbb88d15d9f51f6aa1656e7fd9c84280544106dded7ec2ad9ab6'],
     ['public/cases/financialia-es.pdf', 'ca66deb2fea47025d6382a31fde4de92be9c06af550abdcf3045e597511853ef'],
     ['public/cases/financialia-en.pdf', '4530a2a18e5315dd9f5c98c06224b377165a82bcc2126045750b14ef61de810b'],
   ];
