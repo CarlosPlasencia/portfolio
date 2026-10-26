@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { ArrowDownToLine, ArrowLeft, ArrowRight, ArrowUpRight, Braces, Check, ChevronDown, ChevronRight, Code2, FileCode2, Folder, FolderOpen, GitBranch, Github, Languages, MessageCircle, Search, X, Zap } from 'lucide-react';
 import { LanguageProvider, useLanguage } from '../../contexts/LanguageContext';
-import { CONTACT_CHANNELS } from '../../lib/i18n';
+import { CONTACT_CHANNELS, type Language } from '../../lib/i18n';
 import { getAdjacentEntries, getWorkspaceEntries, PRIMARY_SKILLS, ADDITIONAL_SKILLS } from '../../lib/workspace-content';
+import { getWorkspacePath, getFaqs } from '../../lib/seo';
 import ProjectDemos from './ProjectDemos';
 import ProjectVisual from './ProjectVisual';
 import AgentTerminals from './AgentTerminals';
 import ContactPage from './ContactPage';
 
 const HOME = 'overview';
-interface WorkspaceProps { initialEntry?: string; }
-function Workspace({ initialEntry = HOME }: WorkspaceProps) {
+interface WorkspaceProps { initialEntry?: string; initialLanguage?: Language; routed?: boolean; }
+function Workspace({ initialEntry = HOME, routed = false }: WorkspaceProps) {
   const { copy, language, setLanguage } = useLanguage();
   const es = language === 'es';
   const entries = getWorkspaceEntries(copy.projects.featured, language);
@@ -53,20 +54,30 @@ function Workspace({ initialEntry = HOME }: WorkspaceProps) {
     const restore = () => {
       const id = window.location.hash.slice(1);
       if (getWorkspaceEntries(copy.projects.featured, 'es').some(item => item.id === id)) {
+        if (routed) {
+          const path = getWorkspacePath(id, language);
+          if (window.location.pathname !== path) window.location.replace(path);
+          else window.history.replaceState(null, '', path);
+          return;
+        }
         setActive(id); if (id !== HOME) setLastEntry(id);
       }
     };
     restore(); window.addEventListener('hashchange', restore);
     return () => window.removeEventListener('hashchange', restore);
-  }, [copy.projects.featured]);
+  }, [copy.projects.featured, language, routed]);
   useEffect(() => { if (contentRef.current) contentRef.current.scrollTop = 0; }, [active]);
 
   function openEntry(id: string, focusContent = false) {
     if (!entries.some(item => item.id === id)) return;
+    if (routed && getWorkspacePath(id, language) !== window.location.pathname) {
+      window.location.assign(getWorkspacePath(id, language));
+      return;
+    }
     setActive(id); if (id !== HOME) setLastEntry(id);
     if (window.matchMedia('(max-width: 800px)').matches) setExplorerOpen(false);
     commandDialog.current?.close(); setQuery('');
-    window.history.replaceState(null, '', `#${id}`);
+    if (!routed) window.history.replaceState(null, '', `#${id}`);
     if (focusContent) window.requestAnimationFrame(() => contentRef.current?.focus());
   }
   function navigateTabs(event: ReactKeyboardEvent<HTMLDivElement>) {
@@ -80,6 +91,7 @@ function Workspace({ initialEntry = HOME }: WorkspaceProps) {
   function fileButton(id: string) {
     const file = entries.find(item => item.id === id);
     if (!file) return null;
+    if (routed) return <a key={id} className={`ws-file ${active === id ? 'selected' : ''}`} aria-current={active === id ? 'page' : undefined} href={getWorkspacePath(id, language)}><FileCode2 size={14} /><span>{file.file}</span></a>;
     return <button key={id} className={`ws-file ${active === id ? 'selected' : ''}`} aria-current={active === id ? 'page' : undefined} onClick={() => openEntry(id, true)}><FileCode2 size={14} /><span>{file.file}</span></button>;
   }
 
@@ -87,8 +99,8 @@ function Workspace({ initialEntry = HOME }: WorkspaceProps) {
     <a className="ws-skip" href="#workspace-content">{copy.nav.skip}</a>
     <header className="ws-titlebar">
       <div className="ws-brand"><span className="ws-monogram">cp<span>_</span></span><span>carlos<span className="ws-dim"> / workspace</span></span></div>
-      <button className="ws-command" aria-label={es ? 'Buscar secciones y proyectos' : 'Search sections and projects'} onClick={() => commandDialog.current?.showModal()}><Search size={14} /><span>{es ? 'Explora el workspace' : 'Explore the workspace'}</span><kbd>⌘ K</kbd></button>
-      <div className="ws-title-actions"><button className="ws-language" onClick={() => setLanguage(es ? 'en' : 'es')} aria-label={es ? 'Switch to English' : 'Cambiar a español'}><Languages size={15} />{es ? 'ES → EN' : 'EN → ES'}</button></div>
+      <button className="ws-command" aria-label={es ? 'Explora el workspace ⌘ K — Buscar secciones y proyectos' : 'Explore the workspace ⌘ K — Search sections and projects'} onClick={() => commandDialog.current?.showModal()}><Search size={14} /><span>{es ? 'Explora el workspace' : 'Explore the workspace'}</span><kbd>⌘ K</kbd></button>
+      <div className="ws-title-actions">{routed ? <a className="ws-language" href={getWorkspacePath(active, es ? 'en' : 'es')} aria-label={es ? 'ES → EN — Switch to English' : 'EN → ES — Cambiar a español'}><Languages size={15} />{es ? 'ES → EN' : 'EN → ES'}</a> : <button className="ws-language" onClick={() => setLanguage(es ? 'en' : 'es')} aria-label={es ? 'ES → EN — Switch to English' : 'EN → ES — Cambiar a español'}><Languages size={15} />{es ? 'ES → EN' : 'EN → ES'}</button>}</div>
     </header>
     <div className={`ws-body ${explorerOpen ? '' : 'explorer-collapsed'}`}>
       <nav className="ws-activity" aria-label={es ? 'Herramientas del workspace' : 'Workspace tools'}>
@@ -96,7 +108,7 @@ function Workspace({ initialEntry = HOME }: WorkspaceProps) {
         <button className="ws-tool" aria-label={es ? 'Buscar' : 'Search'} onClick={() => commandDialog.current?.showModal()}><Search size={21} /></button>
         <button className="ws-tool" aria-label={es ? 'Volver al inicio' : 'Back to overview'} onClick={() => openEntry(HOME, true)}><Code2 size={22} /></button>
         <a className="ws-tool" href={CONTACT_CHANNELS.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub"><Github size={20} /></a>
-        <div className="ws-rail-bottom"><button className="ws-tool ws-whatsapp" onClick={() => openEntry('contact', true)} aria-label={es ? 'Ver opciones de contacto' : 'View contact options'} title={es ? 'Contacto' : 'Contact'}><MessageCircle size={21} /><span className="ws-whatsapp-dot" /></button><img src="/images/carlos-plasencia.png" width="28" height="28" alt="Carlos Plasencia" /></div>
+        <div className="ws-rail-bottom"><button className="ws-tool ws-whatsapp" onClick={() => openEntry('contact', true)} aria-label={es ? 'Ver opciones de contacto' : 'View contact options'} title={es ? 'Contacto' : 'Contact'}><MessageCircle size={21} /><span className="ws-whatsapp-dot" /></button><img src="/images/carlos-plasencia-avatar.webp" width="28" height="28" decoding="async" alt="Carlos Plasencia" /></div>
       </nav>
       <aside id="workspace-explorer" className={`ws-explorer ${explorerOpen ? 'is-open' : ''}`}>
         <div className="ws-explorer-heading"><span>EXPLORER</span><button aria-label={es ? 'Cerrar explorador' : 'Close explorer'} onClick={() => setExplorerOpen(false)}><X size={15} /></button></div>
@@ -109,18 +121,20 @@ function Workspace({ initialEntry = HOME }: WorkspaceProps) {
           <div className="ws-project-files">{fileButton('skills')}{PRIMARY_SKILLS.map(item => fileButton(item.id))}{fileButton('skills-more')}</div>
           {fileButton('services')}
           {fileButton('contact')}
-          <a className="ws-file" href={copy.cv.url} target="_blank" rel="noopener noreferrer" aria-label={es ? 'Abrir CV en nueva pestaña' : 'Open CV in a new tab'}><ArrowUpRight size={14} /><span>resume.pdf</span></a>
+          <a className="ws-file" href={copy.cv.url} target="_blank" rel="noopener noreferrer" aria-label={es ? 'resume.pdf — Abrir CV en nueva pestaña' : 'resume.pdf — Open CV in a new tab'}><ArrowUpRight size={14} /><span>resume.pdf</span></a>
           <div className="ws-sidebar-note"><span className="ws-section-caption">{es ? 'ACTUALMENTE' : 'CURRENTLY'}</span><p><span className="ws-availability-dot" />{copy.hero.availability}</p><a href={CONTACT_CHANNELS.studio} target="_blank" rel="noopener noreferrer">↳ Totora Studio <ArrowUpRight size={12} /></a></div>
         </div>
       </aside>
-      <div className="ws-editor">
-        <div className="ws-tabs" role="tablist" aria-label={es ? 'Archivos abiertos' : 'Open files'} onKeyDown={navigateTabs}>
-          <button id="tab-overview" role="tab" aria-controls="workspace-content" aria-selected={active === HOME} tabIndex={active === HOME ? 0 : -1} className={active === HOME ? 'is-active' : ''} onClick={() => openEntry(HOME)}><FileCode2 size={14} />overview.tsx<span className="ws-tab-dot" /></button>
-          {openTab ? <button id="tab-entry" role="tab" aria-controls="workspace-content" aria-selected={active !== HOME} tabIndex={active !== HOME ? 0 : -1} className={active !== HOME ? 'is-active' : ''} onClick={() => openEntry(openTab.id)}><Braces size={14} />{openTab.file}</button> : null}
+      <main className="ws-editor">
+        <div className="ws-tabs">
+          <div className="ws-tab-items" role="tablist" aria-label={es ? 'Archivos abiertos' : 'Open files'} onKeyDown={navigateTabs}>
+            <button id="tab-overview" role="tab" aria-controls="workspace-content" aria-selected={active === HOME} tabIndex={active === HOME ? 0 : -1} className={active === HOME ? 'is-active' : ''} onClick={() => openEntry(HOME)}><FileCode2 size={14} />overview.tsx<span className="ws-tab-dot" /></button>
+            {openTab ? <button id="tab-entry" role="tab" aria-controls="workspace-content" aria-selected={active !== HOME} tabIndex={active !== HOME ? 0 : -1} className={active !== HOME ? 'is-active' : ''} onClick={() => openEntry(openTab.id)}><Braces size={14} />{openTab.file}</button> : null}
+          </div>
           <a href={copy.cv.url} target="_blank" rel="noopener noreferrer" aria-label={es ? 'Abrir CV en nueva pestaña' : 'Open CV in a new tab'} className="ws-tab-cv"><ArrowUpRight size={13} />CV</a>
         </div>
-        <div className="ws-breadcrumb"><span>portfolio</span><ChevronRight size={12} /><span>{entry.group}</span><ChevronRight size={12} /><span>{entry.file}</span><span className="ws-breadcrumb-end"><span className="ws-availability-dot" />{es ? 'Disponible para colaborar' : 'Available for collaboration'}</span></div>
-        <main ref={contentRef} id="workspace-content" role="tabpanel" aria-labelledby={active === HOME ? 'tab-overview' : 'tab-entry'} className="ws-canvas" tabIndex={-1}>
+        <div className="ws-breadcrumb">{routed ? <a href={getWorkspacePath(HOME, language)}>portfolio</a> : <span>portfolio</span>}<ChevronRight size={12} /><span>{entry.group}</span><ChevronRight size={12} /><span>{entry.file}</span><span className="ws-breadcrumb-end"><span className="ws-availability-dot" />{es ? 'Disponible para colaborar' : 'Available for collaboration'}</span></div>
+        <section ref={contentRef} id="workspace-content" role="tabpanel" aria-labelledby={active === HOME ? 'tab-overview' : 'tab-entry'} className="ws-canvas" tabIndex={-1}>
           {active === HOME || project ? <>
             <section className="ws-intro" key={active} aria-labelledby="ws-main-title">
               <div className="ws-line-numbers" aria-hidden="true">01<br />02<br />03<br />04<br />05<br />06<br />07<br />08<br />09<br />10<br />11<br />12<br />13<br />14</div>
@@ -182,20 +196,25 @@ function Workspace({ initialEntry = HOME }: WorkspaceProps) {
             </div>}
             </section>
             {project ? <><div className="ws-project-details"><span className="ws-section-caption">{copy.projects.labelDetails}</span><ul>{project.details.map(detail => <li key={detail}><Check size={13} />{detail}</li>)}</ul></div><ProjectDemos key={project.id} id={project.id} es={es} motion={motion} /></> : <AgentTerminals es={es} />}
-          </> : active === 'about' ? <section className="ws-document ws-about" aria-labelledby="ws-main-title"><div className="ws-doc-heading"><span className="ws-comment">// {copy.about.eyebrow}</span><h1 id="ws-main-title">{es ? 'Más que código.' : 'Beyond the code.'}</h1></div><div className="ws-about-grid"><div><h2>{copy.about.title}</h2>{copy.about.paragraphs.map(text => <p key={text}>{text}</p>)}<a className="ws-secondary" href={copy.cv.url} target="_blank" rel="noopener noreferrer" aria-label={es ? 'Abrir CV en nueva pestaña' : 'Open CV in a new tab'}>{es ? 'Ver CV' : 'View CV'}<ArrowUpRight size={15} /></a></div><figure className="ws-portrait"><img src="/images/carlos-plasencia.png" width="400" height="400" alt="Carlos Plasencia" /><figcaption>CARLOS PLASENCIA <span>Trujillo, Perú / Remote</span></figcaption></figure></div><div className="ws-experience"><span className="ws-section-caption">{copy.experience.eyebrow}</span>{copy.experience.jobs.map(job => <article key={job.company}><span>{job.period}</span><div><h3>{job.company}</h3><strong>{job.position}</strong><p>{job.description}</p></div></article>)}</div></section>
+          </> : active === 'about' ? <section className="ws-document ws-about" aria-labelledby="ws-main-title"><span className="ws-comment">// {copy.about.eyebrow}</span><div className="ws-about-grid"><div className="ws-about-copy"><div className="ws-doc-heading"><h1 id="ws-main-title">{es ? 'Más que código.' : 'Beyond the code.'}</h1></div><h2>{copy.about.title}</h2>{copy.about.paragraphs.map(text => <p key={text}>{text}</p>)}<a className="ws-secondary" href={copy.cv.url} target="_blank" rel="noopener noreferrer" aria-label={es ? 'Abrir CV en nueva pestaña' : 'Open CV in a new tab'}>{es ? 'Ver CV' : 'View CV'}<ArrowUpRight size={15} /></a></div><figure className="ws-portrait"><img src="/images/carlos-plasencia-about.webp" width="640" height="640" decoding="async" alt="Carlos Plasencia" /><figcaption>CARLOS PLASENCIA <span>Trujillo, Perú / Remote</span></figcaption></figure></div><div className="ws-experience"><span className="ws-section-caption">{copy.experience.eyebrow}</span>{copy.experience.jobs.map(job => <article key={job.company}><span>{job.period}</span><div><h3>{job.company}</h3><strong>{job.position}</strong><p>{job.description}</p></div></article>)}</div></section>
           : active === 'skills' || active === 'skills-more' || skill ? <section className="ws-document ws-skills" aria-labelledby="ws-main-title"><span className="ws-comment">// stack / {skill ? skill.file : active === 'skills-more' ? 'more.json' : 'index.ts'}</span><h1 id="ws-main-title">{skill ? skill.title : active === 'skills-more' ? (es ? 'Más herramientas.' : 'More tools.') : (es ? 'Mi stack principal.' : 'My core stack.')}</h1>{skill ? <><p className="ws-doc-lead">{skill.description[language]}</p><div className="ws-skill-tools">{skill.tools.map(tool => <span key={tool}>{tool}</span>)}</div><div className="ws-skill-proof"><Code2 size={25} /><div><span className="ws-section-caption">{es ? 'DEL CONCEPTO AL PRODUCTO' : 'FROM CONCEPT TO PRODUCT'}</span><p>{es ? 'Explora un proyecto donde aplico estas herramientas.' : 'Explore a project where I apply these tools.'}</p><button className="ws-text-link" onClick={() => openEntry(skill.project, true)}>{copy.projects.featured.find(item => item.id === skill.project)?.title}<ArrowUpRight size={14} /></button></div></div><p className="ws-skill-note">{es ? 'Sin porcentajes de dominio: el trabajo y las decisiones cuentan la historia.' : 'No proficiency percentages: the work and decisions tell the story.'}</p></> : active === 'skills-more' ? <><p className="ws-doc-lead">{es ? 'Tecnologías e integraciones que complementan mi trabajo, del servidor a la puesta en producción.' : 'Supporting technologies and integrations I work with, from backend development to production.'}</p><ul className="ws-more-tools">{otherTools.map(tool => <li key={tool}><span>→</span>{tool}</li>)}</ul></> : <><p className="ws-doc-lead">{es ? 'Selecciona un archivo para ver cómo lo aplico en productos reales.' : 'Open a file to see how I apply it in real products.'}</p><div className="ws-skill-directory">{PRIMARY_SKILLS.map((item, index) => <button key={item.id} onClick={() => openEntry(item.id, true)}><span>0{index + 1}</span><div><h2>{item.title}</h2><p>{item.description[language]}</p><small>{item.file}</small></div><ArrowUpRight size={21} /></button>)}</div><button className="ws-text-link" onClick={() => openEntry('skills-more', true)}>{es ? 'Ver las demás herramientas' : 'View other tools'}<ArrowRight size={14} /></button></>}</section>
           : active === 'contact' ? <ContactPage es={es} message={copy.contact.whatsappMessage} cvUrl={copy.cv.url} />
-          : <section className="ws-document ws-services" aria-labelledby="ws-main-title"><span className="ws-comment">// {copy.services.eyebrow}</span><h1 id="ws-main-title">{es ? 'Construyamos algo útil.' : 'Let’s build something useful.'}</h1><p className="ws-doc-lead">{copy.services.intro}</p><div className="ws-service-list">{copy.services.offerings.map((offering, index) => <article key={offering.title}><span>0{index + 1}</span><div><h2>{offering.title}</h2><p>{offering.description}</p></div><ArrowUpRight size={21} /></article>)}</div><div className="ws-process"><h2>{copy.process.title}</h2><div>{copy.process.steps.map((step, index) => <article key={step.title}><span>0{index + 1} / {step.title}</span><p>{step.description}</p></article>)}</div></div><div className="ws-service-contact"><div><h2>{copy.contact.title}</h2><p>{copy.contact.description}</p></div><button className="ws-primary" onClick={() => openEntry('contact', true)}><MessageCircle size={17} />{es ? 'Ver opciones de contacto' : 'View contact options'}<ArrowRight size={15} /></button></div></section>}
+          : <section className="ws-document ws-services" aria-labelledby="ws-main-title"><span className="ws-comment">// {copy.services.eyebrow}</span><h1 id="ws-main-title">{es ? 'Construyamos algo útil.' : 'Let’s build something useful.'}</h1><p className="ws-doc-lead">{copy.services.intro}</p><div className="ws-service-list">{copy.services.offerings.map((offering, index) => <article key={offering.title}><span>0{index + 1}</span><div><h2>{offering.title}</h2><p>{offering.description}</p></div><ArrowUpRight size={21} /></article>)}</div><div className="ws-process"><h2>{copy.process.title}</h2><div>{copy.process.steps.map((step, index) => <article key={step.title}><span>0{index + 1} / {step.title}</span><p>{step.description}</p></article>)}</div></div><section className="ws-faq" aria-labelledby="faq-title"><h2 id="faq-title">{es ? 'Preguntas frecuentes' : 'Frequently asked questions'}</h2>{getFaqs(language).map(faq => <details key={faq.question}><summary>{faq.question}</summary><p>{faq.answer}</p></details>)}</section><div className="ws-service-contact"><div><h2>{copy.contact.title}</h2><p>{copy.contact.description}</p></div><button className="ws-primary" onClick={() => openEntry('contact', true)}><MessageCircle size={17} />{es ? 'Ver opciones de contacto' : 'View contact options'}<ArrowRight size={15} /></button></div></section>}
           <nav className="ws-page-navigation" aria-label={es ? 'Navegación entre secciones y proyectos' : 'Section and project navigation'}>
+            {routed ? <>
+              {adjacent.previous ? <a href={getWorkspacePath(adjacent.previous.id, language)}><ArrowLeft size={18} /><span><small>{es ? 'Anterior' : 'Previous'}</small>{adjacent.previous.title}</span></a> : <span />}
+              <a href={getWorkspacePath(adjacent.next?.id ?? HOME, language)}><span><small>{adjacent.next ? (es ? 'Siguiente' : 'Next') : (es ? 'Volver a' : 'Back to')}</small>{adjacent.next?.title ?? (es ? 'Inicio' : 'Overview')}</span><ArrowRight size={18} /></a>
+            </> : <>
             {adjacent.previous ? <button onClick={() => openEntry(adjacent.previous!.id, true)}><ArrowLeft size={18} /><span><small>{es ? 'Anterior' : 'Previous'}</small>{adjacent.previous.title}</span></button> : <span />}
             {adjacent.next ? <button onClick={() => openEntry(adjacent.next!.id, true)}><span><small>{es ? 'Siguiente' : 'Next'}</small>{adjacent.next.title}</span><ArrowRight size={18} /></button> : <button onClick={() => openEntry(HOME, true)}><span><small>{es ? 'Volver a' : 'Back to'}</small>{es ? 'Inicio' : 'Overview'}</span><ArrowRight size={18} /></button>}
+            </>}
           </nav>
-        </main>
-      </div>
+        </section>
+      </main>
     </div>
     <footer className="ws-statusbar"><div><GitBranch size={12} /><span>main</span><span className="ws-status-separator" /><span><Check size={12} />{es ? 'Vista previa local' : 'Local preview'}</span></div><div><span className="ws-status-location">Trujillo, PE ↗</span><span>UTF-8</span><span>TypeScript React</span><span className="ws-status-blue"><Zap size={11} />{es ? 'Construyendo' : 'Building'}</span></div></footer>
     <dialog ref={commandDialog} className="ws-command-dialog" onClose={() => setQuery('')} aria-label={es ? 'Buscar en el workspace' : 'Search the workspace'}><form onSubmit={event => { event.preventDefault(); if (results[0]) openEntry(results[0].id, true); }}><div className="ws-command-input"><Search size={18} /><input autoFocus aria-label={es ? 'Sección, skill o proyecto' : 'Section, skill or project'} placeholder={es ? 'Busca una sección, skill o proyecto…' : 'Find a section, skill or project…'} value={query} onChange={event => setQuery(event.target.value)} /><button type="button" onClick={() => commandDialog.current?.close()} aria-label={es ? 'Cerrar buscador' : 'Close search'}><kbd>esc</kbd></button></div><div className="ws-command-results">{results.map(item => <button type="button" key={item.id} onClick={() => openEntry(item.id, true)}><Braces size={16} /><span>{item.title}<small>{item.group} / {item.file}</small></span><ArrowRight size={15} /></button>)}{!results.length ? <p>{es ? 'Sin resultados.' : 'No results.'}</p> : null}</div></form></dialog>
   </div>;
 }
 
-export default function WorkspacePreview(props: WorkspaceProps) { return <LanguageProvider><Workspace {...props} /></LanguageProvider>; }
+export default function WorkspacePreview(props: WorkspaceProps) { return <LanguageProvider initialLanguage={props.initialLanguage} manageMetadata={!props.routed}><Workspace {...props} /></LanguageProvider>; }

@@ -1,0 +1,15 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Layout from '../layouts/Layout.astro';
+import WorkspacePreview from '../components/workspace/WorkspacePreview';
+import { getStaticPages, type SitePage } from '../lib/seo';
+import '../styles/workspace.css';
+export const getStaticPaths = (() => getStaticPages()
+  .filter(page => page.path !== '/')
+  .map(page => ({ params: { path: page.path.slice(1, -1) }, props: { page } }))) satisfies GetStaticPaths;
+interface Props { page: SitePage; }
+const { page } = Astro.props;
+---
+<Layout page={page}>
+  <WorkspacePreview initialEntry={page.entryId} initialLanguage={page.language} routed={true} client:load />
+</Layout>

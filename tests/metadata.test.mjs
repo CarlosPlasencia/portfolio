@@ -2,27 +2,26 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { loadSource } from './helpers/source.mjs';
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url));
 const canonical = 'https://www.carlosplasencia.dev/';
 
 test('home metadata uses the canonical domain and server-rendered factual schema', async () => {
   const layout = (await read('src/layouts/Layout.astro')).toString();
-  const schemaSource = layout.match(/const structuredData = (\{[\s\S]*?\n\});/);
-  assert.ok(schemaSource, 'JSON-LD must be available from the server-rendered layout');
-  const schema = JSON.parse(schemaSource[1]);
+  const schema = loadSource('lib/seo.ts').getPageData('overview', 'es').structuredData;
   assert.equal(schema['@context'], 'https://schema.org');
-  assert.deepEqual(schema['@graph'].map((entry) => entry['@type']), ['Person', 'WebSite']);
+  assert.deepEqual(Array.from(schema['@graph'], entry => entry['@type']), ['Person', 'WebSite', 'WebPage', 'BreadcrumbList']);
   assert.equal(schema['@graph'][0].url, canonical);
   assert.equal(schema['@graph'][1].url, canonical);
   assert.match(layout, /<script type="application\/ld\+json" set:html=/);
   assert.match(layout, /<link rel="canonical" href=\{canonical\}/);
-  assert.match(layout, /<html lang="es"/);
+  assert.match(layout, /<html lang=\{page.language\}/);
   assert.doesNotMatch(layout, /fonts\.googleapis|fonts\.gstatic|console\.log|rel="preload"[^>]*cv\.pdf/);
   assert.doesNotMatch(layout, /twitter:(site|creator)|9\+|SearchAction|international clients/);
   const index = (await read('src/pages/index.astro')).toString();
   assert.match(index, /import WorkspacePreview from ['"]\.\.\/components\/workspace\/WorkspacePreview['"]/);
-  assert.match(index, /<WorkspacePreview client:load\s*\/>/);
+  assert.match(index, /<WorkspacePreview initialLanguage="es" routed=\{true\} client:load\s*\/>/);
   assert.match(index, /styles\/workspace\.css/);
   assert.doesNotMatch(index, /<App\b|noindex/);
   assert.match(layout, /<body class="workspace-page antialiased">/);
@@ -48,10 +47,11 @@ test('approved portrait, bilingual CVs and Financialia cases are unchanged copie
   }
 });
 
-test('crawler files list only the existing canonical root and allow rendering resources', async () => {
-  const sitemap = (await read('public/sitemap.xml')).toString();
+test('crawler files list localized canonical pages and allow rendering resources', async () => {
+  const seo = loadSource('lib/seo.ts');
+  const sitemap = seo.buildSitemap();
   const robots = (await read('public/robots.txt')).toString();
-  assert.deepEqual([...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]), [canonical]);
+  assert.deepEqual([...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]), Array.from(seo.getStaticPages(), page => page.canonical));
   assert.match(robots, /Sitemap: https:\/\/www\.carlosplasencia\.dev\/sitemap\.xml/);
   assert.doesNotMatch(robots, /Disallow: \/_astro/);
 });

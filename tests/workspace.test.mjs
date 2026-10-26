@@ -49,6 +49,9 @@ test('workspace renders overview agents, isolated project demos and browsable co
     '../lib/i18n': 'lib/i18n.ts',
     '../../lib/i18n': 'lib/i18n.ts',
     '../../lib/workspace-demo': 'lib/workspace-demo.ts',
+    '../../lib/seo': 'lib/seo.ts',
+    './i18n': 'lib/i18n.ts',
+    './workspace-content': 'lib/workspace-content.ts',
     '../../lib/workspace-content': 'lib/workspace-content.ts',
     './ProjectDemos': 'components/workspace/ProjectDemos.tsx',
     './ProjectVisual': 'components/workspace/ProjectVisual.tsx',
@@ -114,7 +117,7 @@ test('workspace renders overview agents, isolated project demos and browsable co
     assert.doesNotMatch(page, /financialia\.pipeline/);
   }
   const about = renderToStaticMarkup(React.createElement(App, { initialEntry: 'about' }));
-  assert.match(about, /Digenio/); assert.match(about, /carlos-plasencia.png/);
+  assert.match(about, /Digenio/); assert.match(about, /carlos-plasencia-about.webp/);
   const services = renderToStaticMarkup(React.createElement(App, { initialEntry: 'services' }));
   assert.match(services, /IA aplicada a tu producto/);
   assert.match(services, /Ver opciones de contacto/);
@@ -133,7 +136,7 @@ test('workspace renders overview agents, isolated project demos and browsable co
       assert.match(anchor, /target="_blank"/);
       assert.match(anchor, /rel="noopener noreferrer"/);
       assert.doesNotMatch(anchor, /\bdownload(?:=|\s|>)/);
-      assert.match(anchor, /aria-label="Abrir CV en nueva pestaña"/);
+      assert.match(anchor, /aria-label="(?:resume\.pdf — )?Abrir CV en nueva pestaña"/);
     }
   }
   assert.match(about, /Ver CV/);

@@ -1,47 +1,21 @@
 ---
+import { getPageData, SITE_ORIGIN, type SitePage } from '../lib/seo';
 export interface Props {
+  page?: SitePage;
   title?: string;
   description?: string;
 }
-
-const {
-  title = 'Carlos Plasencia | Desarrollo Full Stack e IA aplicada',
-  description = 'Desarrollo productos web para empresas y startups, desde el diseño hasta producción. Desarrollo Full Stack senior, integración de IA y arquitectura de software.',
-} = Astro.props;
-const canonical = 'https://www.carlosplasencia.dev/';
-const portrait = `${canonical}images/carlos-plasencia.png`;
-const structuredData = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Person",
-      "@id": "https://www.carlosplasencia.dev/#person",
-      "name": "Carlos Eduardo Plasencia Prado",
-      "alternateName": "Carlos Plasencia",
-      "jobTitle": "Senior Full-Stack Developer",
-      "description": "Desarrollo de productos web, integración de IA aplicada y arquitectura de software para empresas y startups.",
-      "url": "https://www.carlosplasencia.dev/",
-      "image": "https://www.carlosplasencia.dev/images/carlos-plasencia.png",
-      "sameAs": [
-        "https://github.com/CarlosPlasencia",
-        "https://www.linkedin.com/in/carlos-edu-plasencia-prado/"
-      ],
-      "knowsAbout": ["TypeScript", "React", "Next.js", "Astro", "Node.js", "NestJS", "GraphQL", "MongoDB", "PostgreSQL", "Software Architecture", "Applied AI"]
-    },
-    {
-      "@type": "WebSite",
-      "@id": "https://www.carlosplasencia.dev/#website",
-      "name": "Carlos Plasencia | Desarrollo Full Stack e IA aplicada",
-      "url": "https://www.carlosplasencia.dev/",
-      "inLanguage": ["es", "en"],
-      "about": { "@id": "https://www.carlosplasencia.dev/#person" }
-    }
-  ]
-};
+const { page = getPageData('overview', 'es') } = Astro.props;
+const title = Astro.props.title ?? page.title;
+const description = Astro.props.description ?? page.description;
+const canonical = page.canonical;
+const portrait = `${SITE_ORIGIN}/images/carlos-plasencia.png`;
+const portraitAlt = page.language === 'es' ? 'Retrato profesional de Carlos Plasencia' : 'Professional portrait of Carlos Plasencia';
+const structuredData = page.structuredData;
 ---
 
 <!doctype html>
-<html lang="es" class="scroll-smooth">
+<html lang={page.language} class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -52,6 +26,10 @@ const structuredData = {
     <meta name="theme-color" content="#090d14" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="es" href={page.alternates.es} />
+    <link rel="alternate" hreflang="en" href={page.alternates.en} />
+    <link rel="alternate" hreflang="x-default" href={page.alternates.default} />
+    <link rel="describedby" type="text/plain" href="/llms.txt" />
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
 
     <meta property="og:title" content={title} />
@@ -59,18 +37,18 @@ const structuredData = {
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="Carlos Plasencia" />
-    <meta property="og:locale" content="es_PE" />
-    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale" content={page.language === 'es' ? 'es_PE' : 'en_US'} />
+    <meta property="og:locale:alternate" content={page.language === 'es' ? 'en_US' : 'es_PE'} />
     <meta property="og:image" content={portrait} />
     <meta property="og:image:width" content="1254" />
     <meta property="og:image:height" content="1254" />
-    <meta property="og:image:alt" content="Retrato profesional de Carlos Plasencia" />
+    <meta property="og:image:alt" content={portraitAlt} />
 
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={portrait} />
-    <meta name="twitter:image:alt" content="Retrato profesional de Carlos Plasencia" />
+    <meta name="twitter:image:alt" content={portraitAlt} />
     <script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />
   </head>
   <body class="workspace-page antialiased">
