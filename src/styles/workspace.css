@@ -97,6 +97,7 @@
 .ws-role>span { padding: 0 3px; color: #568fff; }
 .workspace h1 { font-family: Inter, Arial, sans-serif; font-size: clamp(50px, 5.15vw, 88px); line-height: .99; letter-spacing: -.065em; font-weight: 600; color: #f2f5fc; }
 .ws-name-second { display: block; color: #6597ff; }
+.ws-alias { margin-top: 14px !important; font: 12px/1.6 var(--ws-mono); color: #9aafce; }
 .ws-cursor { color: #a9c3ff; font-weight: 400; animation: ws-cursor 1.4s step-end infinite; }
 .ws-description { color: #9caec8; font-size: 13px; line-height: 1.9; max-width: 395px; margin-top: 23px !important; }
 .ws-hero-actions { display: flex; align-items: center; gap: 23px; margin-top: 25px; flex-wrap: wrap; }

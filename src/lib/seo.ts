@@ -1,4 +1,4 @@
-import { CONTACT_CHANNELS, getSiteContent, type Language } from './i18n';
+import { CONTACT_CHANNELS, PROFILE_IDENTITY, getSiteContent, type Language } from './i18n';
 import { getWorkspaceEntries, PRIMARY_SKILLS, ADDITIONAL_SKILLS } from './workspace-content';
 
 export const SITE_ORIGIN = 'https://www.carlosplasencia.dev';
@@ -70,7 +70,7 @@ export function getPageData(entryId: string, language: Language): SitePage {
   };
   const text = project ? `${project.summary} ${project.contribution}` : skill?.description[language] ?? descriptions[entryId];
   const description = text.length <= 160 ? text : `${text.slice(0,157).replace(/\s+\S*$/, '')}…`;
-  const title = entryId === 'overview' ? copy.meta.title : `${entry.title} | Carlos Plasencia`;
+  const title = entryId === 'overview' ? copy.meta.title : `${entry.title} | ${PROFILE_IDENTITY.name} · ${PROFILE_IDENTITY.alias}`;
   const alternates = {
     es: SITE_ORIGIN + getWorkspacePath(entryId,'es'),
     en: SITE_ORIGIN + getWorkspacePath(entryId,'en'),
@@ -78,8 +78,8 @@ export function getPageData(entryId: string, language: Language): SitePage {
   };
   const person = { '@id': `${SITE_ORIGIN}/#person` };
   const graph: Record<string, unknown>[] = [
-    { '@type': 'Person', ...person, name: 'Carlos Eduardo Plasencia Prado', alternateName: 'Carlos Plasencia', jobTitle: 'Senior Full-Stack Developer', url: `${SITE_ORIGIN}/`, image: `${SITE_ORIGIN}/images/carlos-plasencia.png`, sameAs: [CONTACT_CHANNELS.github,CONTACT_CHANNELS.linkedin], knowsAbout: ['TypeScript','React','Next.js','Astro','Node.js','NestJS','GraphQL','Software Architecture','Applied AI'] },
-    { '@type': 'WebSite', '@id': `${SITE_ORIGIN}/#website`, name: 'Carlos Plasencia', url: `${SITE_ORIGIN}/`, inLanguage: ['es','en'], about: person },
+    { '@type': 'Person', ...person, name: PROFILE_IDENTITY.fullName, alternateName: [PROFILE_IDENTITY.name, PROFILE_IDENTITY.alias], jobTitle: 'Senior Full-Stack Developer', url: `${SITE_ORIGIN}/`, image: `${SITE_ORIGIN}/images/carlos-plasencia.png`, sameAs: [CONTACT_CHANNELS.github,CONTACT_CHANNELS.linkedin], knowsAbout: ['TypeScript','React','Next.js','Astro','Node.js','NestJS','GraphQL','Software Architecture','Applied AI'] },
+    { '@type': 'WebSite', '@id': `${SITE_ORIGIN}/#website`, name: PROFILE_IDENTITY.name, alternateName: PROFILE_IDENTITY.alias, url: `${SITE_ORIGIN}/`, inLanguage: ['es','en'], about: person },
     { '@type': entryId === 'about' ? 'AboutPage' : entryId === 'contact' ? 'ContactPage' : 'WebPage', '@id': `${canonical}#webpage`, url: canonical, name: title, description, inLanguage: language, isPartOf: { '@id': `${SITE_ORIGIN}/#website` }, about: person },
     { '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'portfolio', item: SITE_ORIGIN + getWorkspacePath('overview',language) },
@@ -106,7 +106,7 @@ export function buildSitemap(): string {
 export function buildLlms(full = false): string {
   const copy = getSiteContent('en');
   const pages = getStaticPages();
-  const lines = ['# Carlos Plasencia', '', '> Senior full-stack developer based in Trujillo, Peru. Web products, SaaS, software architecture and applied AI. Independent development through Totora Studio and architecture/development leadership in team projects.', '', 'This is a personal portfolio, not the source repository of the featured client products. Illustrations and demos are conceptual, not production screenshots or live services. A project contribution must not be interpreted as sole authorship unless explicitly stated.', '', '## Spanish pages', ...pages.filter(page=>page.language==='es').map(page=>`- [${page.title}](${page.canonical}): ${page.description}`), '', '## English pages', ...pages.filter(page=>page.language==='en').map(page=>`- [${page.title}](${page.canonical}): ${page.description}`), '', '## Profiles and studio', `- [GitHub](${CONTACT_CHANNELS.github})`, `- [LinkedIn](${CONTACT_CHANNELS.linkedin})`, `- [Totora Studio](${CONTACT_CHANNELS.studio}): Independent development studio.`, '', '## Optional', `- [Full portfolio context](${SITE_ORIGIN}/llms-full.txt): Expanded public background, project contributions, services and FAQs.`];
+  const lines = [`# ${PROFILE_IDENTITY.name} · ${PROFILE_IDENTITY.alias}`, '', '> Senior full-stack developer based in Trujillo, Peru. Web products, SaaS, software architecture and applied AI. Independent development through Totora Studio and architecture/development leadership in team projects.', '', 'This is a personal portfolio, not the source repository of the featured client products. Illustrations and demos are conceptual, not production screenshots or live services. A project contribution must not be interpreted as sole authorship unless explicitly stated.', '', '## Spanish pages', ...pages.filter(page=>page.language==='es').map(page=>`- [${page.title}](${page.canonical}): ${page.description}`), '', '## English pages', ...pages.filter(page=>page.language==='en').map(page=>`- [${page.title}](${page.canonical}): ${page.description}`), '', '## Profiles and studio', `- [GitHub](${CONTACT_CHANNELS.github})`, `- [LinkedIn](${CONTACT_CHANNELS.linkedin})`, `- [Totora Studio](${CONTACT_CHANNELS.studio}): Independent development studio.`, '', '## Optional', `- [Full portfolio context](${SITE_ORIGIN}/llms-full.txt): Expanded public background, project contributions, services and FAQs.`];
   if (full) {
     lines.push('', '## Professional background', ...copy.about.paragraphs, '', '## Services', ...copy.services.offerings.map(item=>`### ${item.title}\n\n${item.description}`), '', '## Project evidence');
     for (const project of copy.projects.featured) lines.push(`### ${project.title}`, '', project.summary, '', `Contribution: ${project.contribution}`, '', ...project.details.map(detail=>`- ${detail}`), '', `Technologies: ${project.technologies.join(', ')}.`, '', `Case study: ${SITE_ORIGIN}${getWorkspacePath(project.id,'en')}`, `Official project: ${project.url}`, ...(project.caseStudy ? [`PDF case study: ${SITE_ORIGIN}${project.caseStudy}`] : []), '');

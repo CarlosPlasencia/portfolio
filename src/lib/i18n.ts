@@ -1,5 +1,10 @@
 export const LANGUAGES = { ES: "es", EN: "en" } as const;
 export type Language = (typeof LANGUAGES)[keyof typeof LANGUAGES];
+export const PROFILE_IDENTITY = {
+  name: "Carlos Plasencia",
+  fullName: "Carlos Eduardo Plasencia Prado",
+  alias: "CaleduDev",
+} as const;
 export const CONTACT_CHANNELS = {
   email: "plasenciacarlos7@gmail.com",
   phone: "+51 942254876",
@@ -121,7 +126,7 @@ export const translations: Record<Language, SiteContent> = {
   es: {
     nav: { about: "Sobre mí", services: "Servicios", experience: "Experiencia", projects: "Proyectos", contact: "Contacto", menu: "Abrir menú", close: "Cerrar menú", skip: "Saltar al contenido" },
     hero: {
-      eyebrow: "Carlos Plasencia · Desarrollador Full Stack Senior",
+      eyebrow: `${PROFILE_IDENTITY.name} · ${PROFILE_IDENTITY.alias} · Desarrollador Full Stack Senior`,
       title: "Tu próxima idea,",
       accent: "un producto real.",
       description: "Diseño y desarrollo productos web para empresas y startups. Del primer alcance a producción, con IA aplicada cuando aporta valor.",
@@ -132,7 +137,7 @@ export const translations: Record<Language, SiteContent> = {
     about: {
       eyebrow: "Quién está detrás", title: "Pienso el producto. Construyo la solución.",
       paragraphs: [
-        "Soy Carlos, desarrollador full stack senior y fundador de Totora Studio. Trabajo directamente contigo para convertir una necesidad de negocio en una aplicación útil, desde el diseño y la arquitectura hasta el desarrollo y la puesta en producción.",
+        `Soy ${PROFILE_IDENTITY.name}, también conocido como ${PROFILE_IDENTITY.alias}, desarrollador full stack senior y fundador de Totora Studio. Trabajo directamente contigo para convertir una necesidad de negocio en una aplicación útil, desde el diseño y la arquitectura hasta el desarrollo y la puesta en producción.`,
         "También he liderado equipos de desarrollo. En Aptura Labs definí la arquitectura y lideré el desarrollo de Skillramp junto con un equipo de diseño, programación, QA y gestión de proyecto.",
         "Mi enfoque combina fundamentos de ingeniería con IA aplicada: integro modelos en productos y uso agentes como apoyo al desarrollo, manteniendo la validación y las decisiones técnicas bajo control humano.",
       ],
@@ -215,13 +220,13 @@ export const translations: Record<Language, SiteContent> = {
       whatsappMessage: "Hola Carlos, me gustaría conversar sobre un proyecto.",
     },
     footer: { built: "Diseñado y desarrollado por Carlos Plasencia · Astro + React", backTop: "Volver arriba" },
-    meta: { title: "Carlos Plasencia | Desarrollo Full Stack e IA aplicada", description: "Desarrollo productos web para empresas y startups: diseño, arquitectura, programación e IA aplicada. Conoce mis proyectos y hablemos de tu idea." },
+    meta: { title: `${PROFILE_IDENTITY.name} (${PROFILE_IDENTITY.alias}) | Full Stack e IA`, description: `Soy ${PROFILE_IDENTITY.name}, también ${PROFILE_IDENTITY.alias}. Desarrollo productos web, SaaS e IA aplicada: del diseño y la arquitectura a producción. Conoce mi trabajo.` },
     cv: { label: "Descargar CV en español", url: "/cv/carlos-plasencia-es.pdf" },
   },
   en: {
     nav: { about: "About", services: "Services", experience: "Experience", projects: "Projects", contact: "Contact", menu: "Open menu", close: "Close menu", skip: "Skip to content" },
     hero: {
-      eyebrow: "Carlos Plasencia · Senior Full Stack Developer", title: "Your next idea,", accent: "a real product.",
+      eyebrow: `${PROFILE_IDENTITY.name} · ${PROFILE_IDENTITY.alias} · Senior Full Stack Developer`, title: "Your next idea,", accent: "a real product.",
       description: "I design and develop web products for businesses and startups. From the initial scope to production, with applied AI where it adds value.",
       primary: "Let's talk about your project", secondary: "Explore my work", availability: "Available for new projects",
       location: "Trujillo, Peru · Working remotely", role: "Full Stack Development · Applied AI · SaaS",
@@ -229,7 +234,7 @@ export const translations: Record<Language, SiteContent> = {
     about: {
       eyebrow: "The person behind the work", title: "Product thinking. Hands-on engineering.",
       paragraphs: [
-        "I'm Carlos, a senior full stack developer and founder of Totora Studio. I work directly with you to turn a business need into a useful application, from design and architecture to development and deployment.",
+        `I'm ${PROFILE_IDENTITY.name}, also known as ${PROFILE_IDENTITY.alias}, a senior full stack developer and founder of Totora Studio. I work directly with you to turn a business need into a useful application, from design and architecture to development and deployment.`,
         "I've also led development teams. At Aptura Labs, I defined the architecture and led Skillramp's development alongside a team spanning design, engineering, QA and project management.",
         "My approach combines software engineering fundamentals with applied AI: I integrate models into products and use agents to support development, keeping validation and technical decisions under human control.",
       ],
@@ -305,7 +310,7 @@ export const translations: Record<Language, SiteContent> = {
       whatsappMessage: "Hi Carlos, I'd like to discuss a project.",
     },
     footer: { built: "Designed and developed by Carlos Plasencia · Astro + React", backTop: "Back to top" },
-    meta: { title: "Carlos Plasencia | Full Stack Development & Applied AI", description: "I build web products for businesses and startups: design, architecture, development and applied AI. Explore my work and let's discuss your idea." },
+    meta: { title: `${PROFILE_IDENTITY.name} (${PROFILE_IDENTITY.alias}) | Full Stack & AI`, description: `I'm ${PROFILE_IDENTITY.name}, also ${PROFILE_IDENTITY.alias}. I build web products, SaaS and applied AI, from design and architecture to production. Explore my work.` },
     cv: { label: "Download CV in English", url: "/cv/carlos-plasencia-en.pdf" },
   },
 };

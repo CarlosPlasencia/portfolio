@@ -1,6 +1,6 @@
-# Carlos Plasencia — Portfolio
+# Carlos Plasencia · CaleduDev — Portfolio
 
-Bilingual personal portfolio focused on custom web development, applied AI and SaaS products. Built with Astro, React and TypeScript, with locally hosted fonts and static output.
+Bilingual personal portfolio of Carlos Plasencia, also known as CaleduDev, focused on custom web development, applied AI and SaaS products. Built with Astro, React and TypeScript, with locally hosted fonts and static output.
 
 ## Run locally
 
