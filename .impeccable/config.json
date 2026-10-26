@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "src/styles/globals.css"
+        ],
+        "createdAt": "2026-08-14T13:25:42.998Z",
+        "reason": "User confirmed gradient text is intentional (hero name accent)"
+      }
+    ]
+  }
+}

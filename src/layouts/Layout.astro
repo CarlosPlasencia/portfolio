@@ -1,0 +1,83 @@
+---
+export interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Carlos Plasencia | Desarrollo Full Stack e IA aplicada',
+  description = 'Desarrollo productos web para empresas y startups, desde el diseño hasta producción. Desarrollo Full Stack senior, integración de IA y arquitectura de software.',
+} = Astro.props;
+const canonical = 'https://www.carlosplasencia.dev/';
+const portrait = `${canonical}images/carlos-plasencia.png`;
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://www.carlosplasencia.dev/#person",
+      "name": "Carlos Eduardo Plasencia Prado",
+      "alternateName": "Carlos Plasencia",
+      "jobTitle": "Senior Full-Stack Developer",
+      "description": "Desarrollo de productos web, integración de IA aplicada y arquitectura de software para empresas y startups.",
+      "url": "https://www.carlosplasencia.dev/",
+      "image": "https://www.carlosplasencia.dev/images/carlos-plasencia.png",
+      "sameAs": [
+        "https://github.com/CarlosPlasencia",
+        "https://www.linkedin.com/in/carlos-edu-plasencia-prado/"
+      ],
+      "knowsAbout": ["TypeScript", "React", "Next.js", "Astro", "Node.js", "NestJS", "GraphQL", "MongoDB", "PostgreSQL", "Software Architecture", "Applied AI"]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://www.carlosplasencia.dev/#website",
+      "name": "Carlos Plasencia | Desarrollo Full Stack e IA aplicada",
+      "url": "https://www.carlosplasencia.dev/",
+      "inLanguage": ["es", "en"],
+      "about": { "@id": "https://www.carlosplasencia.dev/#person" }
+    }
+  ]
+};
+---
+
+<!doctype html>
+<html lang="es" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="Carlos Eduardo Plasencia Prado" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#090d14" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="Carlos Plasencia" />
+    <meta property="og:locale" content="es_PE" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:image" content={portrait} />
+    <meta property="og:image:width" content="1254" />
+    <meta property="og:image:height" content="1254" />
+    <meta property="og:image:alt" content="Retrato profesional de Carlos Plasencia" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={portrait} />
+    <meta name="twitter:image:alt" content="Retrato profesional de Carlos Plasencia" />
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />
+  </head>
+  <body class="workspace-page antialiased">
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  @import '../styles/globals.css';
+</style>
