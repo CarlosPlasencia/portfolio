@@ -26,6 +26,7 @@ export function getWorkspaceEntries(projects: readonly ProjectIdentity[], langua
     ...PRIMARY_SKILLS.map(skill => ({ id: skill.id, title: skill.title, file: skill.file, group: 'skills' })),
     { id: 'skills-more', title: es ? 'Más herramientas' : 'More tools', file: 'more.json', group: 'skills' },
     { id: 'services', title: es ? 'Servicios' : 'Services', file: 'services.ts', group: 'src' },
+    { id: 'blog', title: 'Blog', file: 'blog.md', group: 'src' },
     { id: 'contact', title: es ? 'Contacto' : 'Contact', file: 'contact.ts', group: 'src' },
   ];
 }

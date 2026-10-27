@@ -59,6 +59,8 @@ pnpm test
 pnpm typecheck
 pnpm build
 node tests/verify-seo-build.mjs
+node tests/verify-blog-preview-build.mjs
+node tests/verify-blog-production-build.mjs
 pnpm preview
 ```
 
@@ -91,6 +93,16 @@ Open `/` on the local server to use the workspace design as the main page. The h
 Each project has its own concept illustration and a local interactive simulation: Financialia's review-gated transaction pipeline, DGF's content preview, Maki Panda's sample order/loyalty flow, Skillramp's creator/student view and ReservaYa's sample availability. Illustrations are not product screenshots; sample content and rules are not production data. Simulations make no network calls and persist nothing. Navigating away resets them.
 
 The overview's Codex and Claude terminal sequences are illustrative, not live agent sessions. The language control links directly to the same page in ES/EN. Motion follows the system's reduced-motion preference; Financialia uses manual steps when reduced motion is enabled. The contact page lets visitors choose WhatsApp, LinkedIn, email, GitHub or Totora Studio. Email can be copied without launching a mail application. CV links open the language-specific PDF in a new tab rather than forcing a download. The `/workspace` preview remains `noindex,nofollow`; the home route retains its normal indexing metadata. Local development and build commands do not publish changes.
+
+## Blog section
+
+The blog landing page uses the existing workspace shell at `/blog/` (Spanish) and `/en/blog/` (English). Open `blog.md` in the explorer or search for Blog with `Cmd/Ctrl+K`. The language switch preserves the blog section. Its route, metadata, sitemap and crawler summaries use the same registries as the rest of the portfolio.
+
+`src/components/workspace/BlogPage.tsx` contains the bilingual introduction and the article card. The final Spanish article route is `/blog/corregir-bug-con-ia/`; both blog indexes link there, and the English index explicitly labels it as a Spanish article. Its metadata is defined in `src/lib/blog.ts` and `src/lib/blog-seo.ts`, with a canonical URL, social metadata and factual `BlogPosting` structured data. No English translation or publication date is invented. Existing workspace URLs and metadata are preserved; the article is added to the sitemap and crawler summaries.
+
+The reviewed prose remains in `src/content/blog/corregir-bug-con-ia.md` and renders as static Markdown inside the workspace. Its `draft: false` marker records that it is ready for inclusion in the local production build, not that it has been deployed. Routes and discovery are explicitly registered in code, not inferred from that marker alone. The earlier `/blog/vista-previa/corregir-bug-con-ia/` URL remains available only in development, with `noindex,nofollow`; it is not linked from the production indexes or exported into HTML, JavaScript or discovery files. No CMS, database or new dependency was added.
+
+Run the checks above before delivery. `verify-blog-production-build.mjs` checks the final article, index links and metadata; `verify-blog-preview-build.mjs` separately guards against exporting the local preview URL or duplicating the static article body in client JavaScript. Local `pnpm build` and `pnpm preview` prepare and inspect the production artifact without publishing. Deployment and posting social links still require separate explicit approval. At first publication, add an actual publication date only if one is recorded; never use the local build time as a substitute.
 
 ## Toolchain maintenance
 

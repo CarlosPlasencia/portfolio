@@ -1,5 +1,6 @@
 import { CONTACT_CHANNELS, PROFILE_IDENTITY, getSiteContent, type Language } from './i18n';
 import { getWorkspaceEntries, PRIMARY_SKILLS, ADDITIONAL_SKILLS } from './workspace-content';
+import { BLOG_ARTICLE } from './blog';
 
 export const SITE_ORIGIN = 'https://www.carlosplasencia.dev';
 const ROUTES = {
@@ -17,11 +18,12 @@ const ROUTES = {
   'skill-ai': { es: 'tecnologias/ia-aplicada', en: 'en/skills/applied-ai' },
   'skills-more': { es: 'tecnologias/mas', en: 'en/skills/more' },
   services: { es: 'servicios', en: 'en/services' },
+  blog: { es: 'blog', en: 'en/blog' },
   contact: { es: 'contacto', en: 'en/contact' },
 } as const;
 type EntryId = keyof typeof ROUTES;
 export interface Faq { question: string; answer: string; }
-export interface PageAlternates { es: string; en: string; default: string; }
+export interface PageAlternates { es: string; en?: string; default: string; }
 export interface SitePage {
   entryId: string;
   language: Language;
@@ -64,6 +66,7 @@ export function getPageData(entryId: string, language: Language): SitePage {
     overview: copy.meta.description,
     about: copy.about.paragraphs.join(' '),
     services: `${copy.services.intro} ${copy.services.offerings.map(item => item.title).join('. ')}.`,
+    blog: language === 'es' ? 'Blog de CaleduDev: desarrollo web e IA aplicada, paso a paso. Guías prácticas y ejemplos de código para desarrolladores principiantes e intermedios.' : 'The CaleduDev blog: practical web development and applied AI, step by step. Guides and code examples for beginner and intermediate developers.',
     contact: `${copy.contact.description} ${language === 'es' ? 'Contacta con Carlos Plasencia para proyectos de desarrollo web, SaaS e integración de IA.' : 'Contact Carlos Plasencia for web development, SaaS and AI integration projects.'}`,
     skills: language === 'es' ? 'TypeScript, React, Next.js, NestJS, GraphQL e IA aplicada: explora cómo utilizo mi stack principal en productos web y proyectos reales.' : 'TypeScript, React, Next.js, NestJS, GraphQL and applied AI: explore how I use my core stack in real web products and projects.',
     'skills-more': language === 'es' ? 'Herramientas e integraciones que complementan mi trabajo: Node.js, Astro, bases de datos, Docker, AWS, pagos y APIs para productos web.' : 'Supporting tools and integrations I work with: Node.js, Astro, databases, Docker, AWS, payments and APIs for complete web products.',
@@ -100,7 +103,8 @@ export function getStaticPages(): SitePage[] {
 
 export function buildSitemap(): string {
   const urls = getStaticPages().map(page => `  <url><loc>${page.canonical}</loc>${Object.entries(page.alternates).map(([language,url]) => `<xhtml:link rel="alternate" hreflang="${language === 'default' ? 'x-default' : language}" href="${url}"/>`).join('')}</url>`).join('\n');
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`;
+  const article = `  <url><loc>${SITE_ORIGIN}${BLOG_ARTICLE.path}</loc></url>`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n${article}\n</urlset>\n`;
 }
 
 export function buildLlms(full = false): string {
@@ -112,5 +116,7 @@ export function buildLlms(full = false): string {
     for (const project of copy.projects.featured) lines.push(`### ${project.title}`, '', project.summary, '', `Contribution: ${project.contribution}`, '', ...project.details.map(detail=>`- ${detail}`), '', `Technologies: ${project.technologies.join(', ')}.`, '', `Case study: ${SITE_ORIGIN}${getWorkspacePath(project.id,'en')}`, `Official project: ${project.url}`, ...(project.caseStudy ? [`PDF case study: ${SITE_ORIGIN}${project.caseStudy}`] : []), '');
     lines.push('## Supporting technologies', ADDITIONAL_SKILLS.join(', '), '', '## Questions and answers', ...getFaqs('en').map(faq=>`### ${faq.question}\n\n${faq.answer}`), '', '## Contact', `Use the public contact page: ${SITE_ORIGIN}${getWorkspacePath('contact','en')}`);
   }
+  const englishHeading = lines.indexOf('## English pages');
+  lines.splice(englishHeading - 1, 0, `- [${BLOG_ARTICLE.title}](${SITE_ORIGIN}${BLOG_ARTICLE.path}): ${BLOG_ARTICLE.description}`);
   return lines.join('\n')+'\n';
 }

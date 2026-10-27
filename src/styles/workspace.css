@@ -593,3 +593,76 @@
 .ws-faq details { padding: 16px 0; border-bottom: 1px solid #253348; }
 .ws-faq summary { cursor: pointer; color: #d8e4f3; font-size: 14px; }
 .ws-faq p { color: #a3b5cb; font-size: 13px; line-height: 1.8; max-width: 68ch; }
+
+.ws-blog-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 36px;
+}
+.ws-blog-topics li {
+  padding: 7px 11px;
+  border: 1px solid var(--ws-line);
+  border-radius: 4px;
+  color: #b7cbea;
+  font: 10px/1.6 var(--ws-mono);
+  background: var(--ws-panel);
+}
+.ws-blog-empty {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  max-width: 760px;
+  padding: clamp(20px, 4vw, 32px);
+  border: 1px solid var(--ws-line);
+  border-left: 3px solid var(--ws-blue);
+  background: var(--ws-panel);
+}
+.ws-blog-empty > svg { flex-shrink: 0; color: var(--ws-blue); }
+.ws-blog-empty h2 { margin: 12px 0 !important; }
+.ws-blog-empty p { color: #99aecb; font-size: 13px; line-height: 1.9; max-width: 58ch; }
+@media (max-width: 580px) {
+  .ws-blog-empty { flex-direction: column; gap: 14px; }
+}
+
+.ws-blog-draft {
+  display: block;
+  max-width: 760px;
+  padding: clamp(22px, 4vw, 32px);
+  border: 1px solid #345886;
+  border-left: 3px solid var(--ws-blue);
+  background: var(--ws-panel);
+}
+.ws-blog-draft:hover { background: #111f33; }
+.ws-blog-draft h2 { margin: 16px 0 12px !important; }
+.ws-blog-draft p { color: #99aecb; font-size: 13px; line-height: 1.9; margin-bottom: 22px !important; }
+.ws-blog-draft .ws-text-link { display: inline-flex; align-items: center; gap: 8px; }
+.ws-blog-reading { max-width: 780px; margin-inline: auto; min-width: 0; }
+.ws-blog-draft-label { color: var(--ws-blue); font: 10px/1.8 var(--ws-mono); margin-top: 28px !important; }
+.workspace .ws-blog-article h1 { font-size: clamp(30px, 3.7vw, 48px); line-height: 1.2; margin-bottom: 20px; }
+.ws-blog-byline { color: #8592a8; font: 11px/1.9 var(--ws-mono); padding-bottom: 26px; border-bottom: 1px solid var(--ws-line); margin-bottom: 32px !important; }
+.ws-blog-prose { color: #b6c6dc; font-size: 15px; line-height: 1.95; overflow-wrap: anywhere; }
+.ws-blog-prose p { margin: 18px 0 !important; }
+.workspace .ws-blog-prose h2 { color: #e7ecf7; font-size: 23px; margin: 42px 0 18px; scroll-margin-top: 24px; }
+.ws-blog-prose strong { color: #e7ecf7; }
+.ws-blog-prose a { color: #92b3ff; text-decoration: underline; text-underline-offset: 3px; }
+.ws-blog-prose pre {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 22px;
+  border: 1px solid #29384f;
+  border-radius: 5px;
+  font: 12px/1.85 var(--ws-mono);
+}
+.ws-blog-prose :not(pre) > code { color: #c7d7f2; background: #152236; padding: 2px 5px; border-radius: 3px; font-size: .9em; }
+.ws-blog-prose blockquote { margin: 24px 0; border-left: 3px solid var(--ws-blue); background: var(--ws-panel); padding: 4px 22px; color: #b6cbea; }
+.ws-blog-prose table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 13px; }
+.ws-blog-prose th, .ws-blog-prose td { border-bottom: 1px solid #29384f; padding: 12px; }
+.ws-blog-prose th { color: #dbe7fa; background: var(--ws-panel); }
+@media (max-width: 580px) {
+  .ws-blog-prose { font-size: 14px; }
+  .ws-blog-prose pre { font-size: 11px; padding: 15px; }
+  .ws-blog-prose th, .ws-blog-prose td { padding: 10px 6px; }
+}

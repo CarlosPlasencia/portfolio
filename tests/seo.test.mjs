@@ -8,7 +8,7 @@ const origin = 'https://www.carlosplasencia.dev';
 test('every workspace entry has unique localized URLs and reciprocal canonical alternates', () => {
   const seo = loadSource('lib/seo.ts');
   const pages = seo.getStaticPages();
-  assert.equal(pages.length, 30);
+  assert.equal(pages.length, 32);
   assert.equal(new Set(pages.map(page=>page.path)).size, pages.length);
   assert.equal(seo.getWorkspacePath('overview','es'), '/');
   assert.equal(seo.getWorkspacePath('financialia','en'), '/en/projects/financialia/');
@@ -59,7 +59,7 @@ test('sitemap and llms documents derive only from valid canonical public pages a
   const seo=loadSource('lib/seo.ts');
   const pages=seo.getStaticPages();
   const sitemap=seo.buildSitemap();
-  assert.equal((sitemap.match(/<loc>/g)??[]).length,pages.length);
+  assert.equal((sitemap.match(/<loc>/g)??[]).length,pages.length+1);
   for(const page of pages) assert.ok(sitemap.includes(`<loc>${page.canonical}</loc>`));
   assert.match(sitemap,/hreflang="x-default"/);
   assert.doesNotMatch(sitemap, /\/workspace|localhost|lastmod/);
@@ -70,7 +70,7 @@ test('sitemap and llms documents derive only from valid canonical public pages a
   for(const name of ['Financialia','DGF Inmobiliaria','Maki Panda','Skillramp','ReservaYa']) assert.ok(full.includes(name));
   assert.match(full,/team|designers|programmers/);
   for(const match of brief.matchAll(/\]\((https:\/\/www\.carlosplasencia\.dev[^)]*)\)/g)) {
-    assert.ok(pages.some(page=>page.canonical===match[1]) || match[1] === origin+'/llms-full.txt',match[1]);
+    assert.ok(pages.some(page=>page.canonical===match[1]) || match[1] === origin+'/llms-full.txt' || match[1] === origin+'/blog/corregir-bug-con-ia/',match[1]);
   }
   assert.doesNotMatch(brief+full,/localhost|127\.0\.0\.1|Bitbucket|review-|Co-Authored|guaranteed ranking/);
 });

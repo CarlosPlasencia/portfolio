@@ -22,7 +22,7 @@ test('CaleduDev is visible alongside the professional name on home and about in 
 
 test('localized SEO associates both names without changing canonical routes or profile identity', () => {
   const pages = seo.getStaticPages();
-  assert.equal(pages.length, 30);
+  assert.equal(pages.length, 32);
   for (const page of pages) {
     assert.match(page.title, /Carlos Plasencia.*CaleduDev/);
     assert.equal(page.canonical, `https://www.carlosplasencia.dev${page.path}`);

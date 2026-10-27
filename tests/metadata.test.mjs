@@ -51,7 +51,8 @@ test('crawler files list localized canonical pages and allow rendering resources
   const seo = loadSource('lib/seo.ts');
   const sitemap = seo.buildSitemap();
   const robots = (await read('public/robots.txt')).toString();
-  assert.deepEqual([...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]), Array.from(seo.getStaticPages(), page => page.canonical));
+  const { BLOG_ARTICLE } = loadSource('lib/blog.ts');
+  assert.deepEqual([...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]), [...Array.from(seo.getStaticPages(), page => page.canonical), seo.SITE_ORIGIN + BLOG_ARTICLE.path]);
   assert.match(robots, /Sitemap: https:\/\/www\.carlosplasencia\.dev\/sitemap\.xml/);
   assert.doesNotMatch(robots, /Disallow: \/_astro/);
 });

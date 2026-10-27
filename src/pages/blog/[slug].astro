@@ -1,0 +1,23 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Layout from '../../layouts/Layout.astro';
+import WorkspacePreview from '../../components/workspace/WorkspacePreview';
+import { BLOG_ARTICLE } from '../../lib/blog';
+import { getBlogArticlePage } from '../../lib/blog-seo';
+import { Content, frontmatter } from '../../content/blog/corregir-bug-con-ia.md';
+import '../../styles/workspace.css';
+
+export const getStaticPaths = (() => [{ params: { slug: BLOG_ARTICLE.slug } }]) satisfies GetStaticPaths;
+const page = getBlogArticlePage();
+---
+<Layout page={page} article={true}>
+  <WorkspacePreview initialEntry="blog" initialLanguage="es" routed={true} client:load>
+    <article class="ws-blog-reading">
+      <a class="ws-text-link" href="/blog/">← Volver al blog</a>
+      <p class="ws-section-caption">Desarrollo web · IA aplicada · En español</p>
+      <h1 id="ws-main-title">{BLOG_ARTICLE.title}</h1>
+      <p class="ws-blog-byline">{frontmatter.author} · Desarrollo e IA, paso a paso.</p>
+      <div class="ws-blog-prose"><Content /></div>
+    </article>
+  </WorkspacePreview>
+</Layout>

@@ -52,11 +52,14 @@ test('workspace renders overview agents, isolated project demos and browsable co
     '../../lib/seo': 'lib/seo.ts',
     './i18n': 'lib/i18n.ts',
     './workspace-content': 'lib/workspace-content.ts',
+    './blog': 'lib/blog.ts',
+    '../../lib/blog': 'lib/blog.ts',
     '../../lib/workspace-content': 'lib/workspace-content.ts',
     './ProjectDemos': 'components/workspace/ProjectDemos.tsx',
     './ProjectVisual': 'components/workspace/ProjectVisual.tsx',
     './AgentTerminals': 'components/workspace/AgentTerminals.tsx',
     './ContactPage': 'components/workspace/ContactPage.tsx',
+    './BlogPage': 'components/workspace/BlogPage.tsx',
   };
   async function load(path) {
     if (modules.has(path)) return modules.get(path);
